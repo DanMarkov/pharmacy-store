@@ -8,10 +8,10 @@
 <link rel="apple-touch-icon" href="assets/logo.svg">
 <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="theme-aqua">
 
-<!-- ===== небесные слои ===== -->
-<div id="sky" aria-hidden="true">
+<!-- ===== «рабочий стол» (frutiger aero — базовый слой всегда) ===== -->
+<div id="desktop" aria-hidden="true">
   <div id="sun"></div>
   <div class="cloud c1"></div>
   <div class="cloud c2"></div>
@@ -31,35 +31,115 @@
   <div id="mist"></div>
 </div>
 
-<!-- ===== оболочка сайта ===== -->
-<header id="topbar">
-  <a class="logo" href="#/">
-    <img class="logo-img" src="assets/logo.svg" alt="Палата Росы — логотип" width="30" height="43">
-    <span class="logo-text">ПАЛАТА&nbsp;РОСЫ<small>аптека для тех, кто спит · est. в тумане</small></span>
-  </a>
-  <nav>
-    <a href="#/" data-nav="shop">витрина</a>
-    <a href="#/about" data-nav="about">манифест</a>
-    <a href="#/exhibit" data-nav="exhibit" class="nav-exhibit">режим выставки</a>
-  </nav>
-  <button id="cart-btn" class="aqua-btn" aria-label="Корзина">
-    <span class="cart-icon">🫧</span>
-    <span id="cart-count">0</span>
+<!-- иконки на рабочем столе (двойной клик = открыть «программу») -->
+<div id="desktop-icons" aria-hidden="true">
+  <button class="dicon" data-open="aqua">
+    <span class="dicon-art">🫧</span>
+    <span>Витрина<br>«Роса»</span>
   </button>
-  <button id="sound-btn" class="aqua-btn ghost" aria-label="Звук">🔇</button>
-</header>
+  <button class="dicon" data-open="y2k">
+    <span class="dicon-art">💿</span>
+    <span>Архив<br>2000.exe</span>
+  </button>
+  <button class="dicon" data-open="vapor">
+    <span class="dicon-art">🌴</span>
+    <span>Ночной<br>сеанс</span>
+  </button>
+</div>
 
-<main id="app"><!-- роутер рисует сюда --></main>
+<!-- ===== окно приложения в стиле Windows XP ===== -->
+<div id="xp-window">
+  <div id="xp-titlebar">
+    <div class="xp-title-left">
+      <img src="assets/logo.svg" alt="" width="16" height="23">
+      <span id="xp-title">Палата Росы — витрина</span>
+    </div>
+    <div class="xp-title-btns">
+      <button class="xp-btn" id="xp-min" title="Свернуть">🗕</button>
+      <button class="xp-btn" id="xp-max" title="Развернуть">🗖</button>
+      <button class="xp-btn xp-close" id="xp-close" title="Закрыть">🗙</button>
+    </div>
+  </div>
 
-<footer id="plate">
-  <img class="plate-logo" src="assets/logo.svg" alt="" width="34" height="49">
-  <p>«Палата Росы» — не интернет-магазин. Это место, куда приносят усталость,<br>
-  а выносят немного синевы. Все товары вымышлены. Вся роса настоящая.</p>
-  <p class="plate-small">арт-объект · frutiger aero · сделано из стекла, воды и времени · <span id="year"></span></p>
-</footer>
+  <!-- панель вкладок = «программы» -->
+  <div id="xp-tabs" role="tablist">
+    <button class="xp-tab active" data-theme="aqua" role="tab" aria-selected="true">
+      <span class="tab-ico">🫧</span> Витрина · aqua
+    </button>
+    <button class="xp-tab" data-theme="y2k" role="tab" aria-selected="false">
+      <span class="tab-ico">💿</span> Архив 2000 · y2k
+    </button>
+    <button class="xp-tab" data-theme="vapor" role="tab" aria-selected="false">
+      <span class="tab-ico">🌴</span> Ночной сеанс · vapor
+    </button>
+  </div>
+
+  <!-- строка меню в стиле 95/XP -->
+  <div id="xp-menubar">
+    <button data-menu="file">Файл</button>
+    <button data-menu="view">Вид</button>
+    <button data-menu="help">Справка</button>
+    <span id="xp-menu-pop" class="win95-pop" hidden></span>
+  </div>
+
+  <!-- адресная строка, как в Проводнике -->
+  <div id="xp-addressbar">
+    <span class="addr-label">Адрес:</span>
+    <span id="xp-address">palata-rosy/витрина</span>
+  </div>
+
+  <main id="app"><!-- контент текущей темы --></main>
+
+  <footer id="plate">
+    <img class="plate-logo" src="assets/logo.svg" alt="" width="34" height="49">
+    <p>«Палата Росы» — не интернет-магазин. Это место, куда приносят усталость,<br>
+    а выносят немного синевы. Все товары вымышлены. Вся роса настоящая.</p>
+    <p class="plate-small">арт-объект · aqua + y2k + vaporwave · сделано из стекла, воды и времени · <span id="year"></span></p>
+  </footer>
+
+  <!-- статусная строка окна -->
+  <div id="xp-statusbar">
+    <span id="xp-status">Готово. Роса свежая.</span>
+    <span id="xp-status-right">12 товаров · росинка</span>
+  </div>
+</div>
+
+<!-- ===== панель задач в стиле Windows XP ===== -->
+<div id="xp-taskbar">
+  <button id="xp-start">
+    <span class="start-flag"></span> пуск
+  </button>
+  <div id="xp-tasks">
+    <button class="xp-task-btn active" id="task-main">
+      <img src="assets/logo.svg" alt="" width="16" height="23"> Палата Росы
+    </button>
+    <button class="xp-task-btn" id="task-cart">
+      🫧 Корзина (<span id="cart-count">0</span>)
+    </button>
+  </div>
+  <div id="xp-tray">
+    <button id="sound-btn" class="tray-btn" title="Звук тумана">🔇</button>
+    <span id="xp-clock">4:17</span>
+  </div>
+</div>
+
+<!-- меню «пуск» -->
+<div id="xp-startmenu" class="win95-pop" hidden>
+  <div class="startmenu-side">ПАЛАТА<br>РОСЫ</div>
+  <div class="startmenu-items">
+    <button data-open="aqua">🫧 Витрина «Роса» (aqua)</button>
+    <button data-open="y2k">💿 Архив 2000 (y2k)</button>
+    <button data-open="vapor">🌴 Ночной сеанс (vapor)</button>
+    <hr>
+    <button data-open="about">📜 Манифест</button>
+    <button data-open="exhibit">🖼 Режим выставки</button>
+    <hr>
+    <button id="start-shutdown">🌙 Выключить дождь</button>
+  </div>
+</div>
 
 <!-- ===== выдвижная корзина ===== -->
-<aside id="cart-drawer" class="glass" aria-hidden="true">
+<aside id="cart-drawer" aria-hidden="true">
   <div class="drawer-head">
     <h2>Ваша роса</h2>
     <button id="cart-close" class="aqua-btn ghost">✕</button>
@@ -74,7 +154,7 @@
 <div id="scrim"></div>
 
 <!-- ===== модальное окно товара ===== -->
-<div id="modal" class="glass" aria-hidden="true">
+<div id="modal" aria-hidden="true">
   <button id="modal-close" class="aqua-btn ghost">✕</button>
   <div id="modal-body"></div>
 </div>
@@ -95,6 +175,7 @@
 <script src="data.js"></script>
 <script src="art.js"></script>
 <script src="ambient.js"></script>
+<script src="themes.js"></script>
 <script src="app.js"></script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 /* ============================================================
-   ПАЛАТА РОСЫ — приложение: роутер, витрина, корзина, эффекты.
-   Без зависимостей, работает офлайн (file:// тоже ок).
+   ПАЛАТА РОСЫ — приложение: XP-оболочка, три темы, роутер, корзина.
+   Тема (aqua/y2k/vapor) — это «программа» внутри окна Windows XP,
+   рабочий стол всегда в стиле frutiger aero.
    ============================================================ */
 
 (function () {
@@ -14,8 +15,159 @@
   const items = window.SHOP.items;
   const byId = id => items.find(i => i.id === id);
   const cur = window.SHOP.currencyShort;
+  const THEMES = window.THEMES;
 
-  /* ---------- фоновые эффекты: пузырьки и травинки ---------- */
+  /* ============================================================
+     ТЕМА
+     ============================================================ */
+
+  let theme = localStorage.getItem("palata-theme") || "aqua";
+  if (!THEMES[theme]) theme = "aqua";
+
+  function setTheme(id, opts = {}) {
+    if (!THEMES[id]) return;
+    theme = id;
+    localStorage.setItem("palata-theme", id);
+    document.body.className = "theme-" + id;
+    const t = THEMES[id];
+    $("#xp-title").textContent = t.winTitle;
+    $("#xp-address").textContent = t.address;
+    $("#xp-status").textContent = t.status;
+    $$(".xp-tab").forEach(b => {
+      const on = b.dataset.theme === id;
+      b.classList.toggle("active", on);
+      b.setAttribute("aria-selected", on);
+    });
+    if (!opts.silent) {
+      burst(window.innerWidth / 2, window.innerHeight / 2, 8);
+      toast(`Тема «${t.label}» — ${t.description}.`);
+    }
+    route(); // перерендерить текущую страницу в новой теме
+  }
+
+  $$(".xp-tab").forEach(b => b.addEventListener("click", () => setTheme(b.dataset.theme)));
+  $$(".dicon").forEach(b => b.addEventListener("dblclick", () => setTheme(b.dataset.open)));
+  $$(".dicon").forEach(b => b.addEventListener("click", () => {
+    $$(".dicon").forEach(x => x.classList.remove("sel"));
+    b.classList.add("sel");
+  }));
+  $$("#xp-startmenu [data-open]").forEach(b => b.addEventListener("click", () => {
+    hideStartMenu();
+    if (b.dataset.open === "about") { location.hash = "#/about"; return; }
+    if (b.dataset.open === "exhibit") { location.hash = "#/exhibit"; return; }
+    setTheme(b.dataset.open);
+  }));
+
+  /* ============================================================
+     XP-ОБОЛОЧКА: окно, панель задач, меню, часы
+     ============================================================ */
+
+  // часы в трее тикают, стартуют с 4:17 (канон «Палаты Росы")
+  let clockMin = 4 * 60 + 17;
+  function tickClock() {
+    clockMin = (clockMin + 1) % 1440;
+    const h = String(Math.floor(clockMin / 60)).padStart(2, "0");
+    const m = String(clockMin % 60).padStart(2, "0");
+    $("#xp-clock").textContent = `${h}:${m}`;
+  }
+  setInterval(tickClock, 60000);
+
+  // кнопки окна
+  $("#xp-min").addEventListener("click", () => {
+    $("#xp-window").classList.add("minimized");
+    $("#task-main").classList.remove("active");
+  });
+  $("#xp-max").addEventListener("click", () => {
+    const w = $("#xp-window");
+    w.classList.toggle("maximized");
+    // «развернуть» = окно во весь экран без полей
+    if (w.classList.contains("maximized")) {
+      w.style.cssText = "top:0;left:0;transform:none;width:100vw;height:calc(100vh - 44px);border-radius:0";
+    } else {
+      w.style.cssText = "";
+    }
+  });
+  $("#xp-close").addEventListener("click", () => {
+    $("#xp-window").classList.add("minimized");
+    $("#task-main").classList.remove("active");
+    toast("Окно закрыто. Но Палата Росы не закрывается никогда — она ждёт на рабочем столе.");
+  });
+  $("#task-main").addEventListener("click", () => {
+    const w = $("#xp-window");
+    if (w.classList.contains("minimized")) {
+      w.classList.remove("minimized");
+      $("#task-main").classList.add("active");
+    } else {
+      w.classList.add("minimized");
+      $("#task-main").classList.remove("active");
+    }
+  });
+  $("#task-cart").addEventListener("click", openCart);
+
+  // меню «пуск»
+  const startMenu = $("#xp-startmenu");
+  function hideStartMenu() { startMenu.hidden = true; }
+  $("#xp-start").addEventListener("click", e => {
+    e.stopPropagation();
+    startMenu.hidden = !startMenu.hidden;
+  });
+  document.addEventListener("click", e => {
+    if (!startMenu.hidden && !e.target.closest("#xp-startmenu") && !e.target.closest("#xp-start")) hideStartMenu();
+  });
+  $("#start-shutdown").addEventListener("click", () => {
+    hideStartMenu();
+    burst(window.innerWidth / 2, window.innerHeight / 2, 20);
+    toast("Дождь выключен. До следующего сна.");
+  });
+
+  // строка меню (Файл / Вид / Справка)
+  const MENUS = {
+    file: [
+      { label: "Новая корзина", fn: () => { cart.clear(); updateCartBadge(); renderCart(); toast("Корзина очищена росой."); } },
+      { label: "Открыть товар по названию…", fn: () => { const n = prompt("Введите название товара:"); if (!n) return; const f = items.find(i => i.name.toLowerCase().includes(n.toLowerCase())); if (f) location.hash = "#/product/" + f.id; else toast("Такой росы не нашлось."); } },
+      null,
+      { label: "Выход", fn: () => $("#xp-close").click() }
+    ],
+    view: [
+      { label: "Тема: aqua (frutiger aero)", fn: () => setTheme("aqua") },
+      { label: "Тема: y2k (архив 2000)", fn: () => setTheme("y2k") },
+      { label: "Тема: vapor (ночной сеанс)", fn: () => setTheme("vapor") },
+      null,
+      { label: "Режим выставки", fn: () => { location.hash = "#/exhibit"; } }
+    ],
+    help: [
+      { label: "Манифест", fn: () => { location.hash = "#/about"; } },
+      { label: "О программе", fn: () => toast("«Палата Росы» · версия роса-1.0 · арт-объект, не интернет-магазин.") }
+    ]
+  };
+  const menuPop = $("#xp-menu-pop");
+  $$("#xp-menubar > button").forEach(btn => btn.addEventListener("click", e => {
+    e.stopPropagation();
+    const key = btn.dataset.menu;
+    if (menuPop.hidden || menuPop.dataset.for === key) {
+      if (!menuPop.hidden && menuPop.dataset.for === key) { menuPop.hidden = true; btn.classList.remove("open"); return; }
+      menuPop.dataset.for = key;
+      menuPop.innerHTML = MENUS[key].map((m, i) =>
+        m === null ? "<hr>" : `<button data-mi="${i}">${esc(m.label)}</button>`
+      ).join("");
+      menuPop.hidden = false;
+      btn.classList.add("open");
+      $$("button", menuPop).forEach(b => b.addEventListener("click", () => {
+        menuPop.hidden = true; btn.classList.remove("open");
+        MENUS[key][+b.dataset.mi].fn();
+      }));
+    }
+  }));
+  document.addEventListener("click", e => {
+    if (!(e.target instanceof Element) || !e.target.closest("#xp-menubar")) {
+      menuPop.hidden = true;
+      $$("#xp-menubar > button").forEach(b => b.classList.remove("open"));
+    }
+  });
+
+  /* ============================================================
+     ФОНОВЫЕ ЭФФЕКТЫ: пузырьки и травинки (рабочий стол)
+     ============================================================ */
 
   const bubbleLayer = $("#bubbles");
   function spawnBubble(x, y, size) {
@@ -29,7 +181,6 @@
     b.addEventListener("animationend", () => b.remove());
   }
 
-  // поток пузырьков из холма
   setInterval(() => {
     if (document.hidden) return;
     spawnBubble(
@@ -39,7 +190,6 @@
     );
   }, 1400);
 
-  // «взрыв» пузырьков из точки (клик / добавление в корзину)
   function burst(x, y, n = 12) {
     for (let i = 0; i < n; i++) {
       const b = document.createElement("div");
@@ -64,9 +214,8 @@
     }
   }
 
-  // клик по пустому месту — пузырёк + тихий звук
-  document.addEventListener("pointerdown", e => {
-    if (e.target.closest("a,button,input,.card,#cart-drawer,#modal,#exhibit")) return;
+  // клик по рабочему столу — пузырёк
+  $("#desktop").addEventListener("pointerdown", e => {
     burst(e.clientX, e.clientY, 5);
     window.Ambient.pop(e.clientX, e.clientY);
   });
@@ -83,7 +232,9 @@
     grass.appendChild(b);
   }
 
-  /* ---------- тосты ---------- */
+  /* ============================================================
+     ТОСТЫ
+     ============================================================ */
 
   function toast(msg) {
     const t = document.createElement("div");
@@ -93,27 +244,18 @@
     setTimeout(() => { t.classList.add("out"); setTimeout(() => t.remove(), 380); }, 2600);
   }
 
-  /* ---------- корзина ---------- */
+  /* ============================================================
+     КОРЗИНА (общая для всех тем)
+     ============================================================ */
 
-  const cart = new Map(); // id -> qty
-
-  function cartCount() { let n = 0; cart.forEach(q => n += q); return n; }
-  function cartSum() { let s = 0; cart.forEach((q, id) => s += byId(id).price * q); return s; }
+  const cart = new Map();
+  const cartCount = () => { let n = 0; cart.forEach(q => n += q); return n; };
+  const cartSum = () => { let s = 0; cart.forEach((q, id) => s += byId(id).price * q); return s; };
 
   function updateCartBadge() {
-    const n = cartCount();
-    $("#cart-count").textContent = n;
-    const btn = $("#cart-btn");
+    $("#cart-count").textContent = cartCount();
+    const btn = $("#task-cart");
     btn.classList.remove("bump"); void btn.offsetWidth; btn.classList.add("bump");
-  }
-
-  function addToCart(id, x, y) {
-    cart.set(id, (cart.get(id) || 0) + 1);
-    updateCartBadge();
-    renderCart();
-    const item = byId(id);
-    toast(`«${item.name}» — в корзине. Ещё немного росы.`);
-    if (x != null) burst(x, y, 10);
   }
 
   function renderCart() {
@@ -140,10 +282,19 @@
     $("#cart-total").textContent = fmt(cartSum()) + " " + cur;
   }
 
-  function openCart() { $("#cart-drawer").classList.add("open"); $("#cart-drawer").setAttribute("aria-hidden", "false"); $("#scrim").classList.add("open"); }
-  function closeCart() { $("#cart-drawer").classList.remove("open"); $("#cart-drawer").setAttribute("aria-hidden", "true"); $("#scrim").classList.remove("open"); }
+  function openCart() {
+    $("#cart-drawer").classList.add("open");
+    $("#cart-drawer").setAttribute("aria-hidden", "false");
+    $("#scrim").classList.add("open");
+    $("#task-cart").classList.add("active");
+  }
+  function closeCart() {
+    $("#cart-drawer").classList.remove("open");
+    $("#cart-drawer").setAttribute("aria-hidden", "true");
+    $("#scrim").classList.remove("open");
+    $("#task-cart").classList.remove("active");
+  }
 
-  $("#cart-btn").addEventListener("click", openCart);
   $("#cart-close").addEventListener("click", closeCart);
   $("#scrim").addEventListener("click", () => { closeCart(); closeModal(); });
 
@@ -154,7 +305,15 @@
     toast("Роса набрана. Она растает, но вы помните вкус.");
   });
 
-  /* ---------- модалка товара ---------- */
+  function addToCart(id, x, y, qty = 1) {
+    for (let i = 0; i < qty; i++) cart.set(id, (cart.get(id) || 0) + 1);
+    updateCartBadge(); renderCart();
+    if (x != null) burst(x, y, 10);
+  }
+
+  /* ============================================================
+     МОДАЛКА ТОВАРА
+     ============================================================ */
 
   function openModal(id) {
     const it = byId(id);
@@ -163,22 +322,27 @@
     $("#modal").classList.add("open");
     $("#modal").setAttribute("aria-hidden", "false");
   }
-  function closeModal() { $("#modal").classList.remove("open"); $("#modal").setAttribute("aria-hidden", "true"); }
+  function closeModal() {
+    $("#modal").classList.remove("open");
+    $("#modal").setAttribute("aria-hidden", "true");
+  }
   $("#modal-close").addEventListener("click", closeModal);
 
-  /* ---------- шаблоны ---------- */
+  /* ============================================================
+     ШАБЛОНЫ (общие; стили карточек задаёт тема через CSS)
+     ============================================================ */
 
   function productHTML(it, inModal) {
     return `
       ${inModal ? "" : `<a class="back-link" href="#/">← назад к витрине</a>`}
-      <div class="product">
+      <div class="product fade-in">
         <div class="art-big">${window.ART.render(it)}</div>
         <div>
           <h1>${esc(it.name)}</h1>
           <div class="cat">${esc(it.cat)}</div>
           <p class="desc">${esc(it.desc)}</p>
           <p class="meta">${it.meta}</p>
-          <p class="poem" style="font-style:italic;color:var(--ink-soft);margin-bottom:18px">${esc(it.poem)}</p>
+          <p class="poem">${esc(it.poem)}</p>
           <div class="price-line">${fmt(it.price)} ${cur}</div>
           <div class="buy-row">
             <div class="qty">
@@ -197,11 +361,8 @@
     const val = $(".qty-val", root);
     $(".qty-minus", root).addEventListener("click", () => { if (qty > 1) val.textContent = --qty; });
     $(".qty-plus", root).addEventListener("click", () => { if (qty < 99) val.textContent = ++qty; });
-    const add = $(".add-btn", root);
-    add.addEventListener("click", e => {
-      for (let i = 0; i < qty; i++) cart.set(it.id, (cart.get(it.id) || 0) + 1);
-      updateCartBadge(); renderCart();
-      burst(e.clientX, e.clientY, 14);
+    $(".add-btn", root).addEventListener("click", e => {
+      addToCart(it.id, e.clientX, e.clientY, qty);
       toast(`«${it.name}» × ${qty} — в корзине.`);
       if (root.closest("#modal")) closeModal();
     });
@@ -209,7 +370,7 @@
 
   function cardHTML(it, i) {
     return `
-      <article class="card glass" style="animation-delay:${i * 60}ms" data-id="${it.id}" tabindex="0" role="button" aria-label="${esc(it.name)}">
+      <article class="card" style="animation-delay:${i * 55}ms" data-id="${it.id}" data-name="${esc(it.name)}" tabindex="0" role="button" aria-label="${esc(it.name)}">
         ${it.badge ? `<span class="badge ${it.badge === "new" ? "new" : ""}">${it.badge === "new" ? "новое" : it.badge}</span>` : ""}
         <div class="art">${window.ART.render(it)}</div>
         <h3>${esc(it.name)}</h3>
@@ -219,13 +380,15 @@
       </article>`;
   }
 
-  /* ---------- страницы ---------- */
+  /* ============================================================
+     СТРАНИЦЫ
+     ============================================================ */
 
   const routes = {
     home() {
       return `
         <section class="hero glass fade-in">
-          <img class="hero-logo" src="assets/logo.svg" alt="Логотип «Палата Росы»" width="130" height="188">
+          <img class="hero-logo" src="assets/logo.svg" alt="Логотип «Палата Росы»" width="120" height="173">
           <h1>ПАЛАТА РОСЫ</h1>
           <div class="sub">аптека для тех, кто спит · витрина состояний</div>
           <p class="poem">«Мы не продаём лекарства. Мы отпускаем то, чего нет в инструкциях:<br>
@@ -243,7 +406,7 @@
     product(id) {
       const it = byId(id);
       if (!it) return routes.notFound();
-      return `<div class="glass fade-in" style="padding:clamp(10px,2vw,24px)">${productHTML(it, false)}</div>`;
+      return `<div class="fade-in">${productHTML(it, false)}</div>`;
     },
 
     about() {
@@ -261,31 +424,33 @@
     }
   };
 
-  /* ---------- роутер ---------- */
+  /* ============================================================
+     РОУТЕР
+     ============================================================ */
 
   const app = $("#app");
 
   function route() {
     closeCart(); closeModal();
     const hash = location.hash || "#/";
-    let html = "", nav = "shop";
 
+    if (hash === "#/exhibit") { Exhibit.start(); return; }
+
+    let html;
     if (hash.startsWith("#/product/")) {
       html = routes.product(hash.slice("#/product/".length));
-      nav = "shop";
     } else if (hash === "#/about") {
-      html = routes.about(); nav = "about";
-    } else if (hash === "#/exhibit") {
-      Exhibit.start(); return;
+      html = routes.about();
     } else {
       html = routes.home();
     }
 
     app.innerHTML = html;
+    // декор темы
+    $$(".chrome-ball, .y2k-star, .vapor-column", app).forEach(n => n.remove());
+    window.THEME_DECOR[theme](app);
 
-    $$("nav a").forEach(a => a.classList.toggle("active", a.dataset.nav === nav));
-
-    // карточки: клик — модалка, кнопка — в корзину
+    // карточки
     $$(".card", app).forEach(card => {
       const id = card.dataset.id;
       card.addEventListener("click", e => {
@@ -296,17 +461,17 @@
       $(".add", card).addEventListener("click", e => {
         e.stopPropagation();
         addToCart(id, e.clientX, e.clientY);
+        toast(`«${byId(id).name}» — в корзине. Ещё немного росы.`);
       });
     });
 
     if (app.querySelector(".product")) bindProduct(app, byId(location.hash.slice("#/product/".length)));
 
-    window.scrollTo({ top: 0 });
+    app.scrollTop = 0;
   }
 
   window.addEventListener("hashchange", route);
 
-  // «смотреть витрину» — плавный скролл без смены маршрута
   app.addEventListener("click", e => {
     if (e.target.closest("#cta-shop")) {
       const v = $("#vitrina");
@@ -314,7 +479,9 @@
     }
   });
 
-  /* ---------- звук ---------- */
+  /* ============================================================
+     ЗВУК
+     ============================================================ */
 
   const soundBtn = $("#sound-btn");
   soundBtn.addEventListener("click", async () => {
@@ -323,20 +490,19 @@
     toast(on ? "Туман включился. Дождь идёт локально, в вашем браузере." : "Туман выключен. Тишина тоже вариант.");
   });
 
-  /* ---------- режим выставки (attract mode) ---------- */
+  /* ============================================================
+     РЕЖИМ ВЫСТАВКИ (attract mode)
+     ============================================================ */
 
   const Exhibit = {
-    timer: null, idx: 0,
+    timer: null, bubbleTimer: null, idx: 0,
 
     start() {
       const ex = $("#exhibit");
       ex.classList.add("on");
       ex.setAttribute("aria-hidden", "false");
-      document.body.style.overflow = "hidden";
-      $$("nav a").forEach(a => a.classList.remove("active"));
       this.show(0);
       this.timer = setInterval(() => this.show((this.idx + 1) % items.length), 6000);
-      // пузырьки в тёмном зале
       this.bubbleTimer = setInterval(() => {
         if (!document.hidden) spawnBubble(
           window.innerWidth * Math.random(),
@@ -360,7 +526,6 @@
       if (!ex.classList.contains("on")) return;
       ex.classList.remove("on");
       ex.setAttribute("aria-hidden", "true");
-      document.body.style.overflow = "";
       clearInterval(this.timer);
       clearInterval(this.bubbleTimer);
       if (!location.hash || location.hash === "#/exhibit") location.hash = "#/";
@@ -373,9 +538,12 @@
     if (e.key === "Escape") { Exhibit.stop(); closeCart(); closeModal(); }
   });
 
-  /* ---------- старт ---------- */
+  /* ============================================================
+     СТАРТ
+     ============================================================ */
 
   $("#year").textContent = new Date().getFullYear();
   renderCart();
+  setTheme(theme, { silent: true });
   route();
 })();

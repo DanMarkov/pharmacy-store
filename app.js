@@ -225,6 +225,7 @@
     home() {
       return `
         <section class="hero glass fade-in">
+          <img class="hero-logo" src="assets/logo.svg" alt="Логотип «Палата Росы»" width="130" height="188">
           <h1>ПАЛАТА РОСЫ</h1>
           <div class="sub">аптека для тех, кто спит · витрина состояний</div>
           <p class="poem">«Мы не продаём лекарства. Мы отпускаем то, чего нет в инструкциях:<br>

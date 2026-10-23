@@ -1,5 +1,5 @@
 /* ============================================================
-   ПАЛАТА РОСЫ — приложение: XP-оболочка, три темы, роутер, корзина.
+   SPM PHARMACY — приложение: XP-оболочка, три темы, роутер, корзина.
    Тема (aqua/y2k/vapor) — это «программа» внутри окна Windows XP,
    рабочий стол всегда в стиле frutiger aero.
    ============================================================ */
@@ -90,7 +90,7 @@
   $("#xp-close").addEventListener("click", () => {
     $("#xp-window").classList.add("minimized");
     $("#task-main").classList.remove("active");
-    toast("Окно закрыто. Но Палата Росы не закрывается никогда — она ждёт на рабочем столе.");
+    toast("Окно закрыто. Но SPM Pharmacy не закрывается никогда — она ждёт на рабочем столе.");
   });
   $("#task-main").addEventListener("click", () => {
     const w = $("#xp-window");
@@ -137,7 +137,7 @@
     ],
     help: [
       { label: "Манифест", fn: () => { location.hash = "#/about"; } },
-      { label: "О программе", fn: () => toast("«Палата Росы» · версия роса-1.0 · арт-объект, не интернет-магазин.") }
+      { label: "О программе", fn: () => toast("«SPM Pharmacy» · версия роса-1.0 · арт-объект, не интернет-магазин.") }
     ]
   };
   const menuPop = $("#xp-menu-pop");
@@ -388,8 +388,8 @@
     home() {
       return `
         <section class="hero glass fade-in">
-          <img class="hero-logo" src="assets/logo.svg" alt="Логотип «Палата Росы»" width="120" height="173">
-          <h1>ПАЛАТА РОСЫ</h1>
+          <img class="hero-logo" src="assets/logo.svg" alt="Логотип SPM Pharmacy" width="120" height="173">
+          <h1>SPM PHARMACY</h1>
           <div class="sub">аптека для тех, кто спит · витрина состояний</div>
           <p class="poem">«Мы не продаём лекарства. Мы отпускаем то, чего нет в инструкциях:<br>
           полчаса тишины, утро из чужого сна, дождь по требованию.»</p>
@@ -518,7 +518,7 @@
       $("#exhibit-stage").innerHTML = window.ART.render(it);
       $("#ex-title").textContent = it.name;
       $("#ex-poem").textContent = it.poem;
-      $("#ex-meta").textContent = `${it.cat} · ${fmt(it.price)} ${cur} · палата росы`;
+      $("#ex-meta").textContent = `${it.cat} · ${fmt(it.price)} ${cur} · spm pharmacy`;
     },
 
     stop() {

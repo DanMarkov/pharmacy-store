@@ -1,4 +1,4 @@
-name: Deploy «Палата Росы» to GitHub Pages
+name: Deploy «SPM Pharmacy» to GitHub Pages
 
 on:
   push:

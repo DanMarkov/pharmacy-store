@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ПАЛАТА РОСЫ — аптека для тех, кто спит</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%23bfe9ff'/%3E%3Cellipse cx='11' cy='10' rx='5' ry='3' fill='white' opacity='.9'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ===== небесные слои ===== -->
+<div id="sky" aria-hidden="true">
+  <div id="sun"></div>
+  <div class="cloud c1"></div>
+  <div class="cloud c2"></div>
+  <div class="cloud c3"></div>
+  <div class="cloud c4"></div>
+  <div class="cloud c5"></div>
+  <div class="cloud c6"></div>
+  <div id="bubbles"></div>
+  <div id="hill">
+    <svg viewBox="0 0 1440 320" preserveAspectRatio="none">
+      <path d="M0,160 C240,80 480,220 720,150 C960,80 1200,200 1440,120 L1440,320 L0,320 Z" fill="#7ec850" opacity=".55"/>
+      <path d="M0,220 C200,150 420,260 700,200 C980,140 1220,250 1440,180 L1440,320 L0,320 Z" fill="#5cb238" opacity=".7"/>
+      <path d="M0,280 C260,220 520,300 820,250 C1080,210 1280,290 1440,240 L1440,320 L0,320 Z" fill="#3f9427"/>
+    </svg>
+    <div id="grass"></div>
+  </div>
+  <div id="mist"></div>
+</div>
+
+<!-- ===== оболочка сайта ===== -->
+<header id="topbar">
+  <a class="logo" href="#/">
+    <span class="logo-drop"></span>
+    <span class="logo-text">ПАЛАТА&nbsp;РОСЫ<small>аптека для тех, кто спит · est. в тумане</small></span>
+  </a>
+  <nav>
+    <a href="#/" data-nav="shop">витрина</a>
+    <a href="#/about" data-nav="about">манифест</a>
+    <a href="#/exhibit" data-nav="exhibit" class="nav-exhibit">режим выставки</a>
+  </nav>
+  <button id="cart-btn" class="aqua-btn" aria-label="Корзина">
+    <span class="cart-icon">🫧</span>
+    <span id="cart-count">0</span>
+  </button>
+  <button id="sound-btn" class="aqua-btn ghost" aria-label="Звук">🔇</button>
+</header>
+
+<main id="app"><!-- роутер рисует сюда --></main>
+
+<footer id="plate">
+  <p>«Палата Росы» — не интернет-магазин. Это место, куда приносят усталость,<br>
+  а выносят немного синевы. Все товары вымышлены. Вся роса настоящая.</p>
+  <p class="plate-small">арт-объект · frutiger aero · сделано из стекла, воды и времени · <span id="year"></span></p>
+</footer>
+
+<!-- ===== выдвижная корзина ===== -->
+<aside id="cart-drawer" class="glass" aria-hidden="true">
+  <div class="drawer-head">
+    <h2>Ваша роса</h2>
+    <button id="cart-close" class="aqua-btn ghost">✕</button>
+  </div>
+  <div id="cart-items"></div>
+  <div class="drawer-foot">
+    <div class="cart-total">итого: <b id="cart-total">0</b> росинок</div>
+    <button id="checkout" class="aqua-btn big">набрать росу</button>
+    <p class="cart-note">оплата принимается только сном</p>
+  </div>
+</aside>
+<div id="scrim"></div>
+
+<!-- ===== модальное окно товара ===== -->
+<div id="modal" class="glass" aria-hidden="true">
+  <button id="modal-close" class="aqua-btn ghost">✕</button>
+  <div id="modal-body"></div>
+</div>
+
+<!-- ===== режим выставки (attract mode) ===== -->
+<div id="exhibit" aria-hidden="true">
+  <div id="exhibit-stage"></div>
+  <div id="exhibit-caption">
+    <h1 id="ex-title"></h1>
+    <p id="ex-poem"></p>
+    <p id="ex-meta"></p>
+  </div>
+  <div id="exhibit-hint">коснитесь экрана, чтобы проснуться</div>
+</div>
+
+<div id="toasts"></div>
+
+<script src="data.js"></script>
+<script src="art.js"></script>
+<script src="ambient.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

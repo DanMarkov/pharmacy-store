@@ -336,10 +336,11 @@
     return `
       ${inModal ? "" : `<a class="back-link" href="#/">← назад к витрине</a>`}
       <div class="product fade-in">
-        <div class="art-big">${window.ART.render(it)}</div>
+        <div class="art-big"><div class="studio-box">${window.ART.render(it)}</div></div>
         <div>
+          <div class="brand">SPM PHARMACY</div>
           <h1>${esc(it.name)}</h1>
-          <div class="cat">${esc(it.cat)}</div>
+          <div class="cat">${esc(it.dose)} · ${esc(it.cat)}</div>
           <p class="desc">${esc(it.desc)}</p>
           <p class="meta">${it.meta}</p>
           <p class="poem">${esc(it.poem)}</p>
@@ -371,12 +372,17 @@
   function cardHTML(it, i) {
     return `
       <article class="card" style="animation-delay:${i * 55}ms" data-id="${it.id}" data-name="${esc(it.name)}" tabindex="0" role="button" aria-label="${esc(it.name)}">
-        ${it.badge ? `<span class="badge ${it.badge === "new" ? "new" : ""}">${it.badge === "new" ? "новое" : it.badge}</span>` : ""}
-        <div class="art">${window.ART.render(it)}</div>
-        <h3>${esc(it.name)}</h3>
-        <div class="cat">${esc(it.cat)}</div>
-        <div class="price">${fmt(it.price)} <small>${cur}</small></div>
-        <button class="aqua-btn add">в корзину</button>
+        <div class="card-photo">
+          ${it.badge ? `<span class="badge ${it.badge === "new" ? "new" : ""}">${it.badge === "new" ? "новое" : it.badge}</span>` : ""}
+          <div class="art">${window.ART.render(it)}</div>
+        </div>
+        <div class="card-info">
+          <div class="brand">SPM PHARMACY</div>
+          <h3>${esc(it.name)}</h3>
+          <div class="dose">${esc(it.dose)} · ${esc(it.cat)}</div>
+          <div class="price">${fmt(it.price)} <small>${cur}</small></div>
+          <button class="aqua-btn add">в корзину</button>
+        </div>
       </article>`;
   }
 

@@ -10,24 +10,24 @@
     aqua: {
       id: "aqua",
       label: "Витрина · aqua",
-      winTitle: "Палата Росы — витрина",
-      address: "palata-rosy/витрина",
+      winTitle: "SPM Pharmacy — витрина",
+      address: "spm-pharmacy/витрина",
       status: "Готово. Роса свежая.",
       description: "основной зал: стекло, небо, пузырьки"
     },
     y2k: {
       id: "y2k",
       label: "Архив 2000 · y2k",
-      winTitle: "Архив 2000.exe — Палата Росы",
-      address: "C:\\palata-rosy\\архив_2000\\",
+      winTitle: "Архив 2000.exe — SPM Pharmacy",
+      address: "C:\\spm-pharmacy\\архив_2000\\",
       status: "Соединение с 2000 годом установлено…",
       description: "тот же товар, но в chrome и неоне"
     },
     vapor: {
       id: "vapor",
       label: "Ночной сеанс · vapor",
-      winTitle: "ночной сеанс — палата росы",
-      address: "vapor://palata-rosy/ночной_сеанс",
+      winTitle: "ночной сеанс — spm pharmacy",
+      address: "vapor://spm-pharmacy/ночной_сеанс",
       status: "Сеанс начат. Время остановлено. Вечность открыта.",
       description: "тот же товар, но в неоне и VHS"
     }

@@ -75,6 +75,13 @@ def studio_bg():
     col_lo = c0[None, None, :] + (c1 - c0)[None, None, :] * t1[..., None]
     col_hi = c1[None, None, :] + (c2 - c1)[None, None, :] * t2[..., None]
     col = np.where((r >= 0.68)[..., None], col_hi, col_lo)
+    # frutiger aero: мягкое аква-сияние сверху-слева + тёплый блик справа
+    aqua = np.array([64, 205, 235], np.float32)
+    warm = np.array([255, 226, 170], np.float32)
+    gx = np.exp(-(((X + 0.28) ** 2) / 0.35 + ((Y + 0.55) ** 2) / 0.5)) * 26.0
+    gw = np.exp(-(((X - 0.45) ** 2) / 0.3 + ((Y + 0.2) ** 2) / 0.45)) * 16.0
+    col = col + aqua[None, None, :] * gx[..., None] + warm[None, None, :] * gw[..., None]
+    col = np.clip(col, 0, 255)
     arr = np.dstack([col.astype(np.uint8), np.full((S, S, 1), 255, np.uint8)])
     return Image.fromarray(arr, "RGBA")
 
@@ -284,10 +291,20 @@ def label(base, x0, y0, x1, y1, item, seed, r=14):
     sh = rect_mask(x0 + 5, y0 + 8, x1 + 5, y1 + 8, r)
     sh = np.array(Image.fromarray(sh).filter(ImageFilter.GaussianBlur(7)))
     paint(base, sh, solid(50, 70, 90), 0.28)
-    paint(base, rect_mask(x0, y0, x1, y1, r), solid(255, 255, 255), 0.97)
+    # frutiger aero: лёгкий аква-градиент на бумаге этикетки + глянцевый верхний блик
+    lm = rect_mask(x0, y0, x1, y1, r)
+    ys = (np.arange(S, dtype=np.float32)[:, None] - y0) / max(1, y1 - y0)
+    paper = (np.array([255, 255, 255], np.float32)[None, None, :]
+             + (np.array([228, 244, 250], np.float32) - np.array([255, 255, 255], np.float32))[None, None, :]
+             * np.clip(ys, 0, 1)[..., None])
+    paint(base, lm, lambda a, b: np.broadcast_to(paper, (S, S, 3)).copy(), 0.97)
+    gloss = rect_mask(x0, y0, x1, int(y0 + (y1 - y0) * 0.38), r)
+    gloss = np.array(Image.fromarray(gloss).filter(ImageFilter.GaussianBlur(10)))
+    paint(base, gloss, solid(255, 255, 255), 0.28)
     tl = Image.new("RGBA", (S, S), (0, 0, 0, 0))
     d = ImageDraw.Draw(tl)
     d.rounded_rectangle([x0, y0, x1, y1], radius=r, outline=(198, 209, 218, 255), width=3)
+    d.line([x0 + 8, y0 + 4, x1 - 8, y0 + 4], fill=(120, 215, 240, 160), width=3)
     cx = (x0 + x1) // 2
     ctext(d, cx, y0 + 30, "SPM", F("DejaVuSans-Bold.ttf", 62), (39, 66, 148, 255))
     ctext(d, cx, y0 + 112, item["short"], F("DejaVuSans-Bold.ttf", 32), (29, 58, 82, 255), tracking=4)
@@ -332,6 +349,113 @@ def contact_shadow(base, cx, cy, rx, ry, alpha):
     return base
 
 
+def aura(base, mask, color=(90, 215, 245), alpha=0.35, blur=28):
+    m = np.array(Image.fromarray(mask.astype(np.uint8)).filter(ImageFilter.GaussianBlur(blur)))
+    paint(base, m, solid(*color), alpha)
+    return base
+
+
+def gel_blob(base, cx, cy, rx, ry, color=(255, 255, 255), alpha=0.85):
+    yy, xx = np.mgrid[0:S, 0:S]
+    d = np.sqrt(((xx - cx) / rx) ** 2 + ((yy - cy) / ry) ** 2)
+    prof = np.clip(1 - d, 0, 1) ** 1.6
+    body = (prof * 235).astype(np.uint8)
+    paint(base, body, solid(*color), alpha * 0.9)
+    rim = np.clip((1 - np.abs(d - 0.88)) * 8, 0, 1)
+    rim = np.array(Image.fromarray((rim * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(3)))
+    paint(base, rim, solid(160, 230, 250), 0.5)
+    hl = ellipse_mask(int(cx - rx * 0.35), int(cy - ry * 0.4), max(3, int(rx * 0.28)), max(2, int(ry * 0.18)))
+    hl = np.array(Image.fromarray(hl).filter(ImageFilter.GaussianBlur(4)))
+    paint(base, hl, solid(255, 255, 255), 0.95)
+    return base
+
+
+def droplet(base, cx, cy, r, liq_color, seed):
+    rng = np.random.default_rng(seed)
+    yy, xx = np.mgrid[0:S, 0:S]
+    d = np.sqrt((xx - cx) ** 2 + (yy - cy) ** 2)
+    inside = (d <= r).astype(np.float32)
+    inside = np.array(Image.fromarray((inside * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(1)))
+    tint = np.array(liq_color, np.float32)
+    shade = 0.72 + 0.5 * rng.random()
+    col = np.clip(tint * shade, 0, 255)
+    paint(base, inside, solid(*[int(c) for c in col]), 0.55)
+    rim = np.clip((1 - np.abs(d - r * 0.92)) * 6, 0, 1)
+    rim = np.array(Image.fromarray((rim * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(2)))
+    paint(base, rim, solid(255, 255, 255), 0.85)
+    hl = ellipse_mask(int(cx - r * 0.35), int(cy - r * 0.4), max(2, int(r * 0.22)), max(1, int(r * 0.14)))
+    paint(base, hl, solid(255, 255, 255), 0.9)
+    return base
+
+
+def sparkle(base, cx, cy, size, alpha=0.9, arms=4):
+    m = Image.new("L", (S, S), 0)
+    d = ImageDraw.Draw(m)
+    for k in range(arms):
+        ang = k * (360 / arms)
+        import math
+        a = math.radians(ang)
+        x2, y2 = cx + size * math.cos(a), cy + size * math.sin(a)
+        d.line([cx, cy, x2, y2], fill=255, width=max(3, size // 8))
+        x3, y3 = cx + size * 0.45 * math.cos(a), cy + size * 0.45 * math.sin(a)
+        d.line([cx, cy, x3, y3], fill=200, width=max(2, size // 14))
+    m = m.filter(ImageFilter.GaussianBlur(2))
+    paint(base, np.array(m), solid(255, 255, 255), alpha)
+    core = ellipse_mask(cx, cy, max(2, size // 6), max(2, size // 6))
+    paint(base, core, solid(255, 255, 255), 1.0)
+    return base
+
+
+def bubble_v(base, cx, cy, r, alpha=0.5):
+    yy, xx = np.mgrid[0:S, 0:S]
+    d = np.sqrt((xx - cx) ** 2 + (yy - cy) ** 2)
+    ring = np.clip((1 - np.abs(d - r) / max(2.0, r * 0.12)), 0, 1)
+    ring = np.array(Image.fromarray((ring * 255).astype(np.uint8)).filter(ImageFilter.GaussianBlur(2)))
+    paint(base, ring, solid(220, 245, 252), alpha)
+    hl = ellipse_mask(int(cx - r * 0.35), int(cy - r * 0.4), max(2, int(r * 0.2)), max(1, int(r * 0.14)))
+    paint(base, hl, solid(255, 255, 255), alpha + 0.25)
+    return base
+
+
+def aero_glaze(base, item, obj_mask):
+    """Единый frutiger-aero слой: аква-аура по силуэту, капли росы, sparkles, пузырьки."""
+    seed = seed_of(item)
+    rng = np.random.default_rng(seed)
+    aura(base, obj_mask, (90, 215, 245), 0.42, blur=40)
+    aura(base, obj_mask, (255, 255, 255), 0.18, blur=70)
+    liq = rgb255(hsv(item["hue"], 0.45, 0.9))
+    h = int(obj_mask.max(axis=1).nonzero()[0].min()) if obj_mask.any() else 400
+    b = int(obj_mask.max(axis=1).nonzero()[0].max()) if obj_mask.any() else 1250
+    l = int(obj_mask.max(axis=0).nonzero()[0].min()) if obj_mask.any() else 600
+    rgt = int(obj_mask.max(axis=0).nonzero()[0].max()) if obj_mask.any() else 1000
+    n_drops = int(rng.integers(8, 13))
+    for _ in range(n_drops):
+        for _try in range(40):
+            dx = int(rng.integers(l, rgt))
+            dy = int(rng.integers(h, b))
+            if obj_mask[dy, dx] > 128:
+                droplet(base, dx, dy, int(rng.integers(14, 30)), liq, seed + dx)
+                break
+    n_spark = int(rng.integers(4, 8))
+    for _ in range(n_spark):
+        for _try in range(40):
+            dx = int(rng.integers(l, rgt))
+            dy = int(rng.integers(h, b))
+            if obj_mask[dy, dx] > 128:
+                sparkle(base, dx, dy, int(rng.integers(24, 48)), alpha=0.95)
+                break
+    return base
+
+
+def bubbles_in_liquid(base, x0, x1, y0, y1, seed, n=7):
+    rng = np.random.default_rng(seed + 999)
+    for _ in range(n):
+        bx = int(rng.integers(x0 + 12, x1 - 12))
+        by = int(rng.integers(y0 + 10, y1 - 8))
+        bubble_v(base, bx, by, int(rng.integers(5, 12)), alpha=0.45)
+    return base
+
+
 def compose(draw_fn, item, shadows, refl_y=FLOOR_Y, refl_strength=0.13):
     obj = Image.new("RGBA", (S, S), (0, 0, 0, 0))
     draw_fn(obj, item)
@@ -340,6 +464,8 @@ def compose(draw_fn, item, shadows, refl_y=FLOOR_Y, refl_strength=0.13):
     for (cx, cy, rx, ry, a) in shadows:
         contact_shadow(base, cx, cy, rx, ry, a)
     base.alpha_composite(obj)
+    obj_mask = np.array(obj.split()[3])
+    aero_glaze(base, item, obj_mask)
     return base.resize((FINAL, FINAL), Image.Resampling.LANCZOS).convert("RGB")
 
 
@@ -352,6 +478,7 @@ def obj_flacon(base, it):
     edge = rgb255(hsv(it["hue"], 0.35, 0.72))
     vcyl(base, 706, 894, 822, 1234, liq, 0.88, top=False)
     meniscus_v(base, 800, 822, 86)
+    bubbles_in_liquid(base, 712, 888, 840, 1224, seed_of(it), n=8)
     vcyl(base, 690, 910, 700, 1250, (236, 246, 251), 0.30)
     glass_edges(base, 690, 910, 700, 1250, edge, 0.5)
     vhilite(base, 716, 712, 1240, 26, 0.5)
@@ -372,6 +499,7 @@ def obj_ampoule(base, it):
     glass = (238, 248, 251)
     vcyl(base, 688, 912, 1002, 1234, liq, 0.85, top=False)
     meniscus_v(base, 800, 1002, 106, ry=9)
+    bubbles_in_liquid(base, 700, 900, 1020, 1224, seed_of(it), n=6)
     vcyl(base, 680, 920, 884, 1250, glass, 0.32)
     glass_edges(base, 680, 920, 884, 1250, edge, 0.5)
     waist = poly_mask([(680, 884), (920, 884), (838, 706), (762, 706)])
@@ -405,6 +533,7 @@ def obj_syringe(base, it):
     hcyl(base, 546, 606, 918, 982, (140, 148, 156), 1.0, metal=True)
     hcyl(base, 600, 812, 914, 986, liq, 0.85, left=False)
     meniscus_h(base, 812, 950, 34)
+    bubbles_in_liquid(base, 620, 800, 920, 980, seed_of(it), n=5)
     paint(base, ellipse_mask(606, 950, 8, 34).astype(np.float32), solid(*liq), 0.6)
     hcyl(base, 560, 1060, 905, 995, glass, 0.34, left=False)
     paint(base, rect_mask(810, 914, 816, 986).astype(np.float32), solid(90, 130, 125), 0.30)
@@ -462,6 +591,7 @@ def obj_jar(base, it):
     cap = rgb255(hsv(it["hue"], 0.55, 0.68))
     vcyl(base, 634, 966, 952, 1234, cream, 0.95, top=False)
     meniscus_v(base, 800, 952, 160, ry=12)
+    bubbles_in_liquid(base, 650, 950, 975, 1224, seed_of(it), n=6)
     vcyl(base, 620, 980, 880, 1250, (244, 240, 250), 0.30)
     glass_edges(base, 620, 980, 880, 1250, edge, 0.45, w=16)
     vhilite(base, 652, 892, 1240, 30, 0.45)
@@ -561,6 +691,7 @@ def obj_bottle(base, it):
     cap = rgb255(hsv(it["hue"], 0.5, 0.62))
     vcyl(base, 694, 906, 944, 1234, liq, 0.85, top=False)
     meniscus_v(base, 800, 944, 100, ry=8)
+    bubbles_in_liquid(base, 706, 894, 960, 1224, seed_of(it), n=7)
     vcyl(base, 690, 910, 860, 1250, (240, 247, 244), 0.32)
     glass_edges(base, 690, 910, 860, 1250, edge, 0.5)
     shoulders = poly_mask([(690, 860), (910, 860), (845, 782), (755, 782)])
@@ -595,6 +726,8 @@ def obj_vial(base, it):
     for c in (640, 760, 880, 1000, 1120):
         vcyl(base, c - 31, c + 31, 1082, 1230, liq, 0.85, top=False)
         meniscus_v(base, c, 1082, 27, ry=4)
+        bubble_v(base, c - 8, 1160, 5, 0.5)
+        bubble_v(base, c + 9, 1195, 4, 0.4)
         vcyl(base, c - 37, c + 37, 1020, 1240, (242, 236, 246), 0.34)
         glass_edges(base, c - 37, c + 37, 1020, 1240, rgb255(hsv(it["hue"], 0.35, 0.7)), 0.45, w=6)
         vcyl(base, c - 30, c + 30, 978, 1022, cap, 1.0)

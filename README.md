@@ -7,13 +7,13 @@
 Интернет-магазин фармацевтики, который не притворяется магазином.
 Это **арт-объект**: глянцевое стекло, голубое небо, пузырьки, растущая
 трава и двенадцать товаров с туманными названиями — для выставки,
-для экрана, для 4:17. Товары — **фотореалистичные студийные фото** (PNG 800×800
-в `assets/products/`, сгенерированы локально через AI: `tools/generate_ai_products.py`
+для экрана, для 4:17. Товары — **фотореалистичные студийные фото** (WebP + PNG-fallback, 800×800
+в `assets/products/` — сайт отдаёт WebP через `<picture>`, экономия ~10×; сгенерированы локально через AI: `tools/generate_ai_products.py`
 на модели Stable Diffusion (Lykon/dreamshaper-8, CPU) — реальные материалы стекла,
 жидкости, пластика, контактные тени; поверх вклеена читаемая этикетка SPM
 (текст + штрихкод, AI текст не рисует) и лёгкий frutiger aero слой (капли росы,
 блики). Запасной генератор `tools/render_products.py` (чисто программный
-растровый рендер); при отсутствии PNG сайт откатывается на чистый SVG-рендер).
+растровый рендер); при отсутствии WebP/PNG сайт откатывается на чистый SVG-рендер).
 
 ## Что внутри
 
@@ -23,8 +23,8 @@
 | `styles.css` | XP-оболочка (Luna) + три темы: aqua (frutiger aero), y2k (chrome/неон/win98), vapor (неон/VHS/глитч) |
 | `themes.js` | Словарь тем: заголовки окна, адреса, статусы + декор (chrome-шары, звёзды, колонна) |
 | `data.js` | Каталог: 12 «товаров» с foggy-названиями, поэмами, мета-данными + `short`/`dose` для этикеток (общий для всех тем) |
-| `art.js` | Рендеры упаковок: растровые PNG-фото (`ART.photo`, с fallback на SVG) + чистый SVG-генератор 12 типов (`feSpecularLighting` объём стекла, контактные тени, этикетки с текстом и штрихкодом) |
-| `assets/products/*.png` | 12 фотореалистичных студийных PNG-фото товаров (800×800), AI-сгенерированы `tools/generate_ai_products.py` |
+| `art.js` | Рендеры упаковок: растровые студийные фото WebP+PNG (`ART.photo` через `<picture>`, с fallback на SVG) + чистый SVG-генератор 12 типов (`feSpecularLighting` объём стекла, контактные тени, этикетки с текстом и штрихкодом) |
+| `assets/products/*.{webp,png}` | 12 фотореалистичных студийных фото товаров (800×800): WebP q92 (~10× легче, основной) + PNG (fallback), AI-сгенерированы `tools/generate_ai_products.py` |
 | `tools/generate_ai_products.py` | AI-генерация фото товаров (Stable Diffusion 1.5-семейство, напр. `Lykon/dreamshaper-8`, локально на CPU): `python3 tools/generate_ai_products.py` (зависимости: torch, diffusers, pillow, numpy, matplotlib). Промпты и координаты этикеток — в `tools/ai_prompts/products.py` |
 | `tools/render_products.py` | Запасной программный рендер PNG-фото товаров (зависимости: pillow, numpy, matplotlib — только ради шрифтов DejaVu): `python3 tools/render_products.py` |
 | `ambient.js` | Генеративный ambient-звук «туман над озером» на Web Audio (дождь, гул, капли) |

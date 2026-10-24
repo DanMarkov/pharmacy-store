@@ -266,7 +266,7 @@
       box.innerHTML = [...cart.entries()].map(([id, q]) => {
         const it = byId(id);
         return `<div class="cart-item" data-id="${id}">
-          <div class="thumb">${window.ART.render(it)}</div>
+          <div class="thumb">${window.ART.photo(it)}</div>
           <div>
             <div class="ci-name">${esc(it.name)}</div>
             <div class="ci-price">${q} × ${fmt(it.price)} ${cur}</div>
@@ -336,7 +336,7 @@
     return `
       ${inModal ? "" : `<a class="back-link" href="#/">← назад к витрине</a>`}
       <div class="product fade-in">
-        <div class="art-big"><div class="studio-box">${window.ART.render(it)}</div></div>
+        <div class="art-big"><div class="studio-box">${window.ART.photo(it)}</div></div>
         <div>
           <div class="brand">SPM PHARMACY</div>
           <h1>${esc(it.name)}</h1>
@@ -374,7 +374,7 @@
       <article class="card" style="animation-delay:${i * 55}ms" data-id="${it.id}" data-name="${esc(it.name)}" tabindex="0" role="button" aria-label="${esc(it.name)}">
         <div class="card-photo">
           ${it.badge ? `<span class="badge ${it.badge === "new" ? "new" : ""}">${it.badge === "new" ? "новое" : it.badge}</span>` : ""}
-          <div class="art">${window.ART.render(it)}</div>
+          <div class="art">${window.ART.photo(it)}</div>
         </div>
         <div class="card-info">
           <div class="brand">SPM PHARMACY</div>
@@ -521,7 +521,7 @@
     show(i) {
       this.idx = i;
       const it = items[i];
-      $("#exhibit-stage").innerHTML = window.ART.render(it);
+      $("#exhibit-stage").innerHTML = window.ART.photo(it);
       $("#ex-title").textContent = it.name;
       $("#ex-poem").textContent = it.poem;
       $("#ex-meta").textContent = `${it.cat} · ${fmt(it.price)} ${cur} · spm pharmacy`;

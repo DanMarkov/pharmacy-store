@@ -663,7 +663,10 @@ def main():
         img = compose(fn, it, shadows, refl_y, refl_s)
         path = os.path.join(OUT, it["id"] + ".png")
         img.save(path, optimize=True)
-        print(f"{it['id']:24s} -> {path} ({os.path.getsize(path) // 1024} KB)")
+        webp = os.path.join(OUT, it["id"] + ".webp")
+        img.save(webp, "WEBP", quality=92, method=6)
+        print(f"{it['id']:24s} -> {path} ({os.path.getsize(path) // 1024} KB), "
+              f"{webp} ({os.path.getsize(webp) // 1024} KB)")
 
 
 if __name__ == "__main__":

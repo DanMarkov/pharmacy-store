@@ -22,9 +22,9 @@ AI-модель Stable Diffusion (SD 1.5-семейство, напр. Lykon/dre
 SDXL под лимитом памяти 4 GB не помещается (UNet ~10 GB fp32), поэтому SD 1.5.
 На CPU один кадр 768×768 за 25 шагов занимает ~5–6 минут (5 ядер).
 
-Выход: assets/products/<id>.png (800×800) — сайт подхватывает автоматически,
-JS/CSS менять не нужно. Без torch/diffusers сайт продолжает работать на
-прежних PNG-рендерах (или на SVG-fallback).
+Выход: assets/products/<id>.png + <id>.webp (800×800; WebP quality 92) — сайт
+отдаёт WebP через <picture>, PNG остаётся fallback. Без torch/diffusers сайт
+продолжает работать на прежних PNG-рендерах (или на SVG-fallback).
 """
 
 import argparse
@@ -326,7 +326,10 @@ def generate_one(pipe, product, out_path, raw_dir=None, use_label=True):
     tmp = out_path + ".tmp.png"
     img.save(tmp, optimize=True)
     os.replace(tmp, out_path)
-    print(f"  -> {out_path} ({os.path.getsize(out_path) // 1024} KB)")
+    webp_path = out_path[:-4] + ".webp"
+    img.save(webp_path, "WEBP", quality=92, method=6)
+    print(f"  -> {out_path} ({os.path.getsize(out_path) // 1024} KB), "
+          f"{webp_path} ({os.path.getsize(webp_path) // 1024} KB)")
 
 
 def main():

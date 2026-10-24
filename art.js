@@ -413,13 +413,17 @@
       const fn = ARTISTS[item.art] || ARTISTS.flacon;
       return fn(item);
     },
-    /* растровое студийное фото (assets/products/<id>.png); при ошибке загрузки
-       CSS показывает встроенный SVG-рендер (.art-fallback) через .no-photo */
+    /* растровое студийное фото: WebP (assets/products/<id>.webp) с fallback на PNG
+       через <picture>; при ошибке загрузки CSS показывает встроенный SVG-рендер
+       (.art-fallback) через .no-photo */
     photo(item) {
       const svg = this.render(item);
       return `<span class="art-wrap">` +
+        `<picture>` +
+        `<source srcset="assets/products/${item.id}.webp" type="image/webp">` +
         `<img class="photo" src="assets/products/${item.id}.png" alt="${item.name}" loading="lazy" ` +
         `onerror="this.closest('.art-wrap').classList.add('no-photo')">` +
+        `</picture>` +
         `<span class="art-fallback">${svg}</span>` +
         `</span>`;
     }

@@ -457,18 +457,45 @@ button { font-family: inherit; }
   position: relative;
   text-align: center;
   cursor: pointer;
-  padding: 18px 14px 14px;
+  padding: 0;
+  overflow: hidden;
   transition: transform .2s ease, box-shadow .2s ease;
   animation: cardIn .5s ease backwards;
 }
 @keyframes cardIn { from { opacity: 0; transform: translateY(20px) scale(.97); } to { opacity: 1; transform: none; } }
-.card .art { height: 148px; display: flex; align-items: flex-end; justify-content: center; margin-bottom: 10px; border-radius: 12px; background: radial-gradient(ellipse at 50% 78%, rgba(255,255,255,.85), rgba(255,255,255,.25) 60%, transparent 75%); }
-.card .art svg { height: 130px; transition: transform .25s ease; }
-.card:hover .art svg { transform: translateY(-5px) rotate(-2deg) scale(1.04); }
-.card h3 { font-size: 15px; margin-bottom: 3px; }
-.card .cat { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; margin-bottom: 8px; }
-.card .price { font-size: 14px; font-weight: 700; margin-bottom: 10px; }
+/* «фото» товара: белый студийный фон, квадратная зона */
+.card-photo {
+  position: relative;
+  height: 168px;
+  display: flex; align-items: flex-end; justify-content: center;
+  background: radial-gradient(ellipse at 50% 42%, #ffffff, #f8fbfd 68%, #e4ecf1 100%);
+  border-bottom: 1px solid rgba(120,150,165,.25);
+}
+.card-photo .art { height: 156px; display: flex; align-items: flex-end; justify-content: center; }
+.card-photo .art svg { height: 146px; transition: transform .25s ease; }
+.card:hover .card-photo .art svg { transform: translateY(-4px) scale(1.03); }
+/* информационная зона под фото, как в магазине */
+.card-info { padding: 12px 14px 14px; }
+.card .brand {
+  font-size: 8.5px; font-weight: 700; letter-spacing: .3em;
+  color: #7d97a8; margin-bottom: 5px;
+}
+.card h3 { font-size: 14.5px; line-height: 1.35; margin-bottom: 4px; font-weight: 700; }
+.card .dose { font-size: 10.5px; opacity: .75; margin-bottom: 8px; }
+.card .price { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+.card .price small { font-weight: 400; opacity: .65; font-size: 11px; }
 .card .add { width: 100%; }
+/* студийный бокс на странице товара */
+.studio-box {
+  width: 100%; max-width: 420px; aspect-ratio: 1 / 1;
+  display: flex; align-items: flex-end; justify-content: center;
+  border-radius: 6px;
+  background: radial-gradient(ellipse at 50% 42%, #ffffff, #f8fbfd 68%, #e4ecf1 100%);
+  border: 1px solid rgba(120,150,165,.3);
+  box-shadow: inset 0 2px 8px rgba(255,255,255,.8), 0 10px 30px rgba(20,80,107,.12);
+}
+.studio-box svg { height: 88%; }
+.product .brand { font-size: 10px; font-weight: 700; letter-spacing: .34em; color: #7d97a8; margin-bottom: 8px; }
 .badge {
   position: absolute; top: 10px; right: 10px;
   font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
@@ -608,20 +635,21 @@ body.theme-aqua #app {
   color: var(--ink);
 }
 body.theme-aqua .card {
-  background: var(--glass);
-  border: 1px solid var(--glass-edge);
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 10px 24px rgba(20,80,107,.12), inset 0 1px 0 rgba(255,255,255,.9);
-  border-radius: 20px;
+  background: #ffffff;
+  border: 1px solid rgba(160,200,215,.55);
+  box-shadow: 0 8px 22px rgba(20,80,107,.1);
+  border-radius: 10px;
 }
 body.theme-aqua .card:hover {
-  transform: translateY(-6px) scale(1.02);
-  box-shadow: 0 24px 44px rgba(20,80,107,.22), inset 0 1px 0 rgba(255,255,255,.9);
+  transform: translateY(-6px);
+  box-shadow: 0 22px 44px rgba(20,80,107,.2);
+  border-color: var(--aqua);
 }
-body.theme-aqua .card .art svg { filter: none; }
-body.theme-aqua .card .cat { color: var(--ink-soft); }
+body.theme-aqua .card h3 { color: var(--ink); }
+body.theme-aqua .card .brand { color: var(--aqua-deep); }
+body.theme-aqua .card .dose { color: var(--ink-soft); text-transform: lowercase; }
 body.theme-aqua .card .price { color: var(--aqua-deep); }
-body.theme-aqua .card .price small { font-weight: 400; opacity: .7; }
+body.theme-aqua .badge { box-shadow: 0 2px 6px rgba(200,110,20,.4); }
 
 body.theme-aqua .hero { border-radius: 22px; }
 body.theme-aqua .hero h1 {
@@ -633,7 +661,6 @@ body.theme-aqua .hero .sub { color: var(--ink-soft); }
 body.theme-aqua .hero-logo { filter: drop-shadow(0 14px 24px rgba(20,80,107,.28)); }
 
 body.theme-aqua .product, body.theme-aqua .manifest { border-radius: 22px; }
-body.theme-aqua .product .art-big { border-radius: 16px; background: radial-gradient(ellipse at 50% 80%, rgba(255,255,255,.9), rgba(255,255,255,.3) 60%, transparent 78%); }
 body.theme-aqua .product .art-big svg { filter: none; }
 body.theme-aqua .product .cat, body.theme-aqua .manifest .sig { color: var(--ink-soft); }
 body.theme-aqua .product .meta { color: var(--ink-soft); }
@@ -692,7 +719,7 @@ body.theme-y2k #xp-menubar > button:hover, body.theme-y2k #xp-menubar > button.o
 body.theme-y2k #xp-addressbar { background: #12163a; border-bottom-color: #4d5aa8; }
 body.theme-y2k #xp-window { background: #12163a; }
 
-/* карточки = окошки win98 с неоновым title bar */
+/* карточки = окошки win98 с неоновым title bar + белый студийный фото-блок */
 body.theme-y2k .card {
   background: var(--w95-face);
   border: 2px solid;
@@ -700,30 +727,34 @@ body.theme-y2k .card {
   box-shadow: 2px 2px 0 rgba(0,0,0,.6);
   border-radius: 0;
   color: #000;
-  padding: 0 0 12px;
 }
 body.theme-y2k .card::before {
   content: attr(data-name);
   display: block;
-  margin: 2px 2px 8px;
+  margin: 2px 2px 0;
   padding: 3px 6px;
   font-family: "Tahoma", sans-serif;
   font-size: 11px; font-weight: 700; color: #fff;
   background: linear-gradient(90deg, #ff00cc, #3333ff);
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+body.theme-y2k .card-photo {
+  height: 168px;
+  margin: 4px;
+  border: 1px solid #aca899;
+  background: radial-gradient(ellipse at 50% 42%, #ffffff, #f8fbfd 68%, #e4ecf1 100%);
+}
 body.theme-y2k .card:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0 #ff00cc; }
 body.theme-y2k .card h3 {
   font-family: "Comic Sans MS", cursive;
-  font-size: 15px;
+  font-size: 14.5px;
   background: linear-gradient(90deg, #ff00cc, #00e5ff, #39ff14);
   -webkit-background-clip: text; background-clip: text; color: transparent;
   filter: drop-shadow(1px 1px 0 #fff);
-  padding: 0 8px;
 }
-body.theme-y2k .card .cat { color: #7b2ff7; font-family: "Tahoma", sans-serif; }
+body.theme-y2k .card .brand { color: #7b2ff7; font-family: "Tahoma", sans-serif; }
+body.theme-y2k .card .dose { color: #555; font-family: "Tahoma", sans-serif; }
 body.theme-y2k .card .price { color: #0057ff; font-family: "Courier New", monospace; font-weight: 700; }
-body.theme-y2k .card .art svg { filter: drop-shadow(0 0 10px rgba(0,229,255,.6)); }
 body.theme-y2k .badge { border-radius: 0; font-family: "Tahoma", sans-serif; background: linear-gradient(90deg, #ff00cc, #ffd700); box-shadow: 1px 1px 0 #000; }
 body.theme-y2k .badge.new { background: linear-gradient(90deg, #39ff14, #00e5ff); }
 
@@ -905,32 +936,36 @@ body.theme-vapor #xp-menubar > button:hover, body.theme-vapor #xp-menubar > butt
 body.theme-vapor #xp-addressbar { background: #160a2e; border-bottom-color: #7b2ff7; }
 body.theme-vapor #xp-window { background: #160a2e; box-shadow: 0 24px 60px rgba(123,47,247,.35), 0 0 0 1px rgba(255,113,206,.5); }
 
-/* карточки: мраморные плиты с неоновой подсветкой */
+/* карточки: мраморная рамка + неон, но фото-блок — белый студийный, инфо — тёмная */
 body.theme-vapor .card {
-  background:
-    radial-gradient(ellipse at 20% 10%, rgba(255,255,255,.14), transparent 50%),
-    radial-gradient(ellipse at 80% 90%, rgba(255,113,206,.12), transparent 55%),
-    linear-gradient(160deg, #f8f5f0 0%, #e8e0ee 45%, #d5cbe8 100%);
+  background: rgba(22,10,46,.85);
   border: 1px solid rgba(255,113,206,.6);
   box-shadow: 0 0 0 1px rgba(1,205,254,.35), 0 10px 30px rgba(0,0,0,.5), 0 0 24px rgba(185,103,255,.25);
   border-radius: 2px;
-  color: #2a1a4a;
-  backdrop-filter: blur(2px);
+  color: #f5d0fe;
+  backdrop-filter: blur(4px);
 }
 body.theme-vapor .card:hover {
   transform: translateY(-6px);
   box-shadow: 0 0 0 1px #ff71ce, 0 14px 40px rgba(0,0,0,.6), 0 0 34px rgba(255,113,206,.5);
 }
+body.theme-vapor .card-photo {
+  height: 168px;
+  margin: 6px 6px 0;
+  border-radius: 2px;
+  border: 1px solid rgba(1,205,254,.4);
+  background: radial-gradient(ellipse at 50% 42%, #ffffff, #f8fbfd 68%, #e4ecf1 100%);
+}
 body.theme-vapor .card h3 {
   font-family: "Times New Roman", serif;
   font-style: italic;
-  font-size: 17px;
-  color: #7b2ff7;
-  text-shadow: 1px 1px 0 #fff;
+  font-size: 15.5px;
+  color: #ffd6f5;
+  text-shadow: 1px 1px 0 #2a1040, 0 0 8px rgba(255,113,206,.5);
 }
-body.theme-vapor .card .cat { color: #b967ff; font-style: italic; }
-body.theme-vapor .card .price { color: #d6006e; font-family: "Times New Roman", serif; }
-body.theme-vapor .card .art svg { filter: drop-shadow(0 0 12px rgba(185,103,255,.55)); }
+body.theme-vapor .card .brand { color: #01cdfe; text-shadow: 0 0 6px rgba(1,205,254,.7); }
+body.theme-vapor .card .dose { color: #b967ff; font-style: italic; }
+body.theme-vapor .card .price { color: #ff71ce; font-family: "Times New Roman", serif; text-shadow: 0 0 8px rgba(255,113,206,.7); }
 body.theme-vapor .badge {
   border-radius: 0;
   background: linear-gradient(90deg, #ff71ce, #01cdfe);

@@ -99,6 +99,12 @@
           <stop offset=".4" stop-color="#ffffff" stop-opacity=".45"/>
           <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
         </radialGradient>
+        <!-- студийный фон: белый с лёгкой виньеткой по краям -->
+        <radialGradient id="${id}-bg" cx="50%" cy="42%" r="78%">
+          <stop offset="0" stop-color="#ffffff"/>
+          <stop offset=".68" stop-color="#f8fbfd"/>
+          <stop offset="1" stop-color="#e4ecf1"/>
+        </radialGradient>
         <!-- поверхность: отражение под объектом -->
         <linearGradient id="${id}-reflect" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stop-color="#ffffff" stop-opacity=".5"/>
@@ -172,9 +178,9 @@
   const glassBody = (id, d, extra = "") =>
     `<path d="${d}" fill="url(#${id}-body)" stroke="hsl(${0} 0% 30%)" stroke-width=".6" stroke-opacity=".25" filter="url(#${id}-glass)"/>${extra}`;
 
-  /* обёртка: сцена 200x200 */
+  /* обёртка: белый студийный фон + объект крупным планом */
   const wrap = (inner, d, id) =>
-    `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">${d.markup}${inner}</svg>`;
+    `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">${d.markup}<rect width="200" height="200" fill="url(#${id}-bg)"/><g transform="translate(100 106) scale(1.12) translate(-100 -100)">${inner}</g></svg>`;
 
   /* ============================================================
      12 типов упаковок, студийный свет, тени, этикетки
@@ -291,7 +297,7 @@
           <stop offset="1" stop-color="hsl(${h2} 70% 48%)"/>
         </linearGradient>
       </defs>`;
-      return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">${d.markup}${extra}${ground(id, 100, 150, 84)}
+      return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">${d.markup}${extra}<rect width="200" height="200" fill="url(#${id}-bg)"/><g transform="translate(100 104) scale(1.12) translate(-100 -100)">${ground(id, 100, 150, 84)}
         <g transform="rotate(-28 100 100)">
           <path d="M38 100 Q38 74 64 74 L100 74 L100 126 L64 126 Q38 126 38 100 Z" fill="url(#${id}-body)" stroke="#3c464f" stroke-width=".7" stroke-opacity=".3" filter="url(#${id}-glass)"/>
           <path d="M100 74 L136 74 Q162 74 162 100 Q162 126 136 126 L100 126 Z" fill="url(#${id2})" stroke="#3c464f" stroke-width=".7" stroke-opacity=".3" filter="url(#${id}-glass)"/>
@@ -300,7 +306,7 @@
           <text x="69" y="106" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="4.6" fill="#ffffff" opacity=".8" transform="rotate(-90 69 100)">${item.short}</text>
           ${specBar(id, 50, 82, 16, 9, .9)}
           ${specBar(id, 120, 82, 22, 8, .8)}
-        </g></svg>`;
+        </g></g></svg>`;
     },
 
     /* спрей с помпой-распылителем */
@@ -358,12 +364,12 @@
           <stop offset="1" stop-color="#4a2c10"/>
         </linearGradient>
       </defs>`;
-      return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">${d.markup}${amber}${ground(id)}
+      return `<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">${d.markup}${amber}<rect width="200" height="200" fill="url(#${id}-bg)"/><g transform="translate(100 106) scale(1.12) translate(-100 -100)">${ground(id)}
         <rect x="87" y="24" width="26" height="18" rx="3" fill="#e8e2d4" stroke="#9a927e" stroke-width="1"/>
         <path d="M90 42 L110 42 L110 58 Q128 68 128 92 L128 156 Q128 172 100 172 Q72 172 72 156 L72 92 Q72 68 90 58 Z" fill="url(#${aid})" stroke="#3c2408" stroke-width=".8"/>
         ${label(id, { x: 76, y: 104, w: 48, h: 44, title: item.short, dose: item.dose })}
         ${specBar(id, 80, 80, 6, 56, .5)}
-        <rect x="72" y="156" width="56" height="16" rx="8" fill="url(#${id}-reflect)" opacity=".25"/></svg>`;
+        <rect x="72" y="156" width="56" height="16" rx="8" fill="url(#${id}-reflect)" opacity=".25"/></g></svg>`;
     },
 
     /* набор из трёх виал на деревянной подставке */

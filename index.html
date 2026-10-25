@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SPM Pharmacy — аптека для тех, кто спит</title>
+<title>SPM Pharmacy — интернет-аптека</title>
 <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
 <link rel="apple-touch-icon" href="assets/logo.svg">
 <link rel="stylesheet" href="styles.css">
@@ -85,16 +85,16 @@
   <!-- адресная строка, как в Проводнике -->
   <div id="xp-addressbar">
     <span class="addr-label">Адрес:</span>
-    <span id="xp-address">palata-rosy/витрина</span>
+    <span id="xp-address">spm-pharmacy.local/витрина</span>
   </div>
 
   <main id="app"><!-- контент текущей темы --></main>
 
   <footer id="plate">
     <img class="plate-logo" src="assets/logo.svg" alt="" width="34" height="49">
-    <p>«SPM Pharmacy» — не интернет-магазин. Это место, куда приносят усталость,<br>
-    а выносят немного синевы. Все товары вымышлены. Вся роса настоящая.</p>
-    <p class="plate-small">арт-объект · aqua + y2k + vaporwave · стекло, вода, время · <span id="year"></span></p>
+    <p>«SPM Pharmacy» — интернет-аптека · работаем с 2007 года<br>
+    доставка по городу ночью · оплата при получении · чек прилагается</p>
+    <p class="plate-small">все товары сертифицированы · стекло, вода, время · <span id="year"></span></p>
   </footer>
 
   <!-- статусная строка окна -->
@@ -131,8 +131,7 @@
     <button data-open="y2k">💿 Архив 2000 (y2k)</button>
     <button data-open="vapor">🌴 Ночной сеанс (vapor)</button>
     <hr>
-    <button data-open="about">📜 Манифест</button>
-    <button data-open="exhibit">🖼 Режим выставки</button>
+    <button data-open="about">📜 О магазине</button>
     <hr>
     <button id="start-shutdown">🌙 Выключить дождь</button>
   </div>
@@ -141,14 +140,14 @@
 <!-- ===== выдвижная корзина ===== -->
 <aside id="cart-drawer" aria-hidden="true">
   <div class="drawer-head">
-    <h2>Ваша роса</h2>
+    <h2>Ваша корзина</h2>
     <button id="cart-close" class="aqua-btn ghost">✕</button>
   </div>
   <div id="cart-items"></div>
   <div class="drawer-foot">
     <div class="cart-total">итого: <b id="cart-total">0</b> росинок</div>
-    <button id="checkout" class="aqua-btn big">набрать росу</button>
-    <p class="cart-note">оплата принимается только сном</p>
+    <button id="checkout" class="aqua-btn big">оформить заказ</button>
+    <p class="cart-note">оплата при получении · чек прилагается · сдачи не будет</p>
   </div>
 </aside>
 <div id="scrim"></div>
@@ -157,17 +156,6 @@
 <div id="modal" aria-hidden="true">
   <button id="modal-close" class="aqua-btn ghost">✕</button>
   <div id="modal-body"></div>
-</div>
-
-<!-- ===== режим выставки (attract mode) ===== -->
-<div id="exhibit" aria-hidden="true">
-  <div id="exhibit-stage"></div>
-  <div id="exhibit-caption">
-    <h1 id="ex-title"></h1>
-    <p id="ex-poem"></p>
-    <p id="ex-meta"></p>
-  </div>
-  <div id="exhibit-hint">коснитесь экрана, чтобы проснуться</div>
 </div>
 
 <div id="toasts"></div>

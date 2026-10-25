@@ -54,7 +54,6 @@
   $$("#xp-startmenu [data-open]").forEach(b => b.addEventListener("click", () => {
     hideStartMenu();
     if (b.dataset.open === "about") { location.hash = "#/about"; return; }
-    if (b.dataset.open === "exhibit") { location.hash = "#/exhibit"; return; }
     setTheme(b.dataset.open);
   }));
 
@@ -62,7 +61,7 @@
      XP-ОБОЛОЧКА: окно, панель задач, меню, часы
      ============================================================ */
 
-  // часы в трее тикают, стартуют с 4:17 (канон «Палаты Росы")
+  // часы в трее тикают, стартуют с 4:17
   let clockMin = 4 * 60 + 17;
   function tickClock() {
     clockMin = (clockMin + 1) % 1440;
@@ -123,21 +122,19 @@
   // строка меню (Файл / Вид / Справка)
   const MENUS = {
     file: [
-      { label: "Новая корзина", fn: () => { cart.clear(); updateCartBadge(); renderCart(); toast("Корзина очищена росой."); } },
-      { label: "Открыть товар по названию…", fn: () => { const n = prompt("Введите название товара:"); if (!n) return; const f = items.find(i => i.name.toLowerCase().includes(n.toLowerCase())); if (f) location.hash = "#/product/" + f.id; else toast("Такой росы не нашлось."); } },
+      { label: "Новая корзина", fn: () => { cart.clear(); updateCartBadge(); renderCart(); toast("Корзина очищена."); } },
+      { label: "Открыть товар по названию…", fn: () => { const n = prompt("Введите название товара:"); if (!n) return; const f = items.find(i => i.name.toLowerCase().includes(n.toLowerCase())); if (f) location.hash = "#/product/" + f.id; else toast("По такому запросу ничего не найдено."); } },
       null,
       { label: "Выход", fn: () => $("#xp-close").click() }
     ],
     view: [
       { label: "Тема: aqua (frutiger aero)", fn: () => setTheme("aqua") },
       { label: "Тема: y2k (архив 2000)", fn: () => setTheme("y2k") },
-      { label: "Тема: vapor (ночной сеанс)", fn: () => setTheme("vapor") },
-      null,
-      { label: "Режим выставки", fn: () => { location.hash = "#/exhibit"; } }
+      { label: "Тема: vapor (ночной сеанс)", fn: () => setTheme("vapor") }
     ],
     help: [
-      { label: "Манифест", fn: () => { location.hash = "#/about"; } },
-      { label: "О программе", fn: () => toast("«SPM Pharmacy» · версия роса-1.0 · арт-объект, не интернет-магазин.") }
+      { label: "О магазине", fn: () => { location.hash = "#/about"; } },
+      { label: "О программе", fn: () => toast("«SPM Pharmacy» · версия роса-1.0 · интернет-аптека, работаем с 2007 года.") }
     ]
   };
   const menuPop = $("#xp-menu-pop");
@@ -261,7 +258,7 @@
   function renderCart() {
     const box = $("#cart-items");
     if (!cart.size) {
-      box.innerHTML = `<p class="cart-empty">Пока пусто.<br>Роса собирается сама — выберите что-нибудь на витрине.</p>`;
+      box.innerHTML = `<p class="cart-empty">Пока пусто.<br>Выберите товар на витрине — доставка ночью, оплата при получении.</p>`;
     } else {
       box.innerHTML = [...cart.entries()].map(([id, q]) => {
         const it = byId(id);
@@ -299,10 +296,11 @@
   $("#scrim").addEventListener("click", () => { closeCart(); closeModal(); });
 
   $("#checkout").addEventListener("click", e => {
-    if (!cart.size) { toast("Сначала выберите росу. Она ждёт на витрине."); return; }
+    if (!cart.size) { toast("Корзина пуста. Выберите товар на витрине."); return; }
     burst(e.clientX, e.clientY, 22);
+    const total = fmt(cartSum()) + " " + cur;
     cart.clear(); updateCartBadge(); renderCart(); closeCart();
-    toast("Роса набрана. Она растает, но вы помните вкус.");
+    toast(`Заказ оформлен · ${total} · доставка ночью, курьер позвонит за час.`);
   });
 
   function addToCart(id, x, y, qty = 1) {
@@ -364,7 +362,7 @@
     $(".qty-plus", root).addEventListener("click", () => { if (qty < 99) val.textContent = ++qty; });
     $(".add-btn", root).addEventListener("click", e => {
       addToCart(it.id, e.clientX, e.clientY, qty);
-      toast(`«${it.name}» × ${qty} — в корзине.`);
+      toast(`«${it.name}» × ${qty} добавлено в корзину.`);
       if (root.closest("#modal")) closeModal();
     });
   }
@@ -396,12 +394,12 @@
         <section class="hero glass fade-in">
           <img class="hero-logo" src="assets/logo.svg" alt="Логотип SPM Pharmacy" width="120" height="173">
           <h1>SPM PHARMACY</h1>
-          <div class="sub">аптека для тех, кто спит · витрина состояний</div>
-          <p class="poem">«Мы не продаём лекарства. Мы отпускаем то, чего нет в инструкциях:<br>
-          полчаса тишины, утро из чужого сна, дождь по требованию.»</p>
+          <div class="sub">интернет-аптека · доставка ночью · работаем с 2007 года</div>
+          <p class="poem">«Роса свежая. Доставка — ночью, пока город пуст.<br>
+          Принимаем заказы с 2007 года. Чек прилагается.»</p>
           <div class="cta-row">
             <button class="aqua-btn big" id="cta-shop" style="width:auto">смотреть витрину</button>
-            <a class="aqua-btn ghost" href="#/about" style="text-decoration:none;display:inline-flex;align-items:center">читать манифест</a>
+            <a class="aqua-btn ghost" href="#/about" style="text-decoration:none;display:inline-flex;align-items:center">о магазине</a>
           </div>
         </section>
         <div class="grid" id="vitrina">
@@ -426,7 +424,7 @@
     },
 
     notFound() {
-      return `<section class="manifest glass fade-in"><h1>404</h1><p>Такой росы не существует. Она вся на витрине.</p></section>`;
+      return `<section class="manifest glass fade-in"><h1>404</h1><p>Такого товара нет на складе. Возможно, он закончился. Возможно — появится ночью.</p></section>`;
     }
   };
 
@@ -439,8 +437,6 @@
   function route() {
     closeCart(); closeModal();
     const hash = location.hash || "#/";
-
-    if (hash === "#/exhibit") { Exhibit.start(); return; }
 
     let html;
     if (hash.startsWith("#/product/")) {
@@ -467,7 +463,7 @@
       $(".add", card).addEventListener("click", e => {
         e.stopPropagation();
         addToCart(id, e.clientX, e.clientY);
-        toast(`«${byId(id).name}» — в корзине. Ещё немного росы.`);
+        toast(`«${byId(id).name}» добавлен в корзину. Заказ будет собран до утра.`);
       });
     });
 
@@ -493,56 +489,65 @@
   soundBtn.addEventListener("click", async () => {
     const on = await window.Ambient.toggle();
     soundBtn.textContent = on ? "🔊" : "🔇";
-    toast(on ? "Туман включился. Дождь идёт локально, в вашем браузере." : "Туман выключен. Тишина тоже вариант.");
+    toast(on ? "Звук включён: шум дождя и капли на стекле." : "Звук выключен.");
   });
 
   /* ============================================================
-     РЕЖИМ ВЫСТАВКИ (attract mode)
+     UNCANNY — редкие, едва заметные «неправильности» интерфейса.
+     Задача: сайт выглядит почти нормально, но иногда — чуть-чуть
+     не так. Ничего не ломается, всё возвращается на место.
      ============================================================ */
 
-  const Exhibit = {
-    timer: null, bubbleTimer: null, idx: 0,
+  const reduceMotion = window.matchMedia
+    ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    : false;
 
-    start() {
-      const ex = $("#exhibit");
-      ex.classList.add("on");
-      ex.setAttribute("aria-hidden", "false");
-      this.show(0);
-      this.timer = setInterval(() => this.show((this.idx + 1) % items.length), 6000);
-      this.bubbleTimer = setInterval(() => {
-        if (!document.hidden) spawnBubble(
-          window.innerWidth * Math.random(),
-          window.innerHeight + 40,
-          12 + Math.random() * 30
-        );
-      }, 700);
-    },
+  if (!reduceMotion) {
+    const statusEl = $("#xp-status");
+    const statusRight = $("#xp-status-right");
+    const GLITCH_LINES = [
+      "подключение к spm-pharmacy.local…",
+      "буферизация росы…",
+      "проверка чеков…",
+      "синхронизация с 4:17…",
+      "загружено 11 из 12…",
+      "канал открыт. курьер на связи."
+    ];
+    const statusSaved = statusEl.textContent;
+    const rightSaved = statusRight.textContent;
+    let glitchTimer = null;
 
-    show(i) {
-      this.idx = i;
-      const it = items[i];
-      $("#exhibit-stage").innerHTML = window.ART.photo(it);
-      $("#ex-title").textContent = it.name;
-      $("#ex-poem").textContent = it.poem;
-      $("#ex-meta").textContent = `${it.cat} · ${fmt(it.price)} ${cur} · spm pharmacy`;
-    },
-
-    stop() {
-      const ex = $("#exhibit");
-      if (!ex.classList.contains("on")) return;
-      ex.classList.remove("on");
-      ex.setAttribute("aria-hidden", "true");
-      clearInterval(this.timer);
-      clearInterval(this.bubbleTimer);
-      if (!location.hash || location.hash === "#/exhibit") location.hash = "#/";
-      else route();
+    function scheduleGlitch() {
+      glitchTimer = setTimeout(() => {
+        if (document.hidden) { scheduleGlitch(); return; }
+        const line = GLITCH_LINES[Math.floor(Math.random() * GLITCH_LINES.length)];
+        const dur = 900 + Math.random() * 1200;
+        statusEl.textContent = line;
+        if (Math.random() < .4) statusRight.textContent = "";
+        // иногда на долю секунды «мигает» одна карточка
+        const card = $$("#app .card")[Math.floor(Math.random() * 12)];
+        if (card && Math.random() < .5) {
+          card.style.opacity = ".55";
+          setTimeout(() => { card.style.opacity = ""; }, 120 + Math.random() * 180);
+        }
+        setTimeout(() => {
+          statusEl.textContent = statusSaved;
+          statusRight.textContent = rightSaved;
+          scheduleGlitch();
+        }, dur);
+      }, 28000 + Math.random() * 45000); // раз в ~30–75 сек
     }
-  };
+    scheduleGlitch();
 
-  $("#exhibit").addEventListener("click", () => Exhibit.stop());
-  document.addEventListener("keydown", e => {
-    if (e.key === "Escape") { Exhibit.stop(); closeCart(); closeModal(); }
-  });
+    // раз в несколько минут часы «прыгают» на минуту вперёд и назад
+    setInterval(() => {
+      if (document.hidden || Math.random() > .25) return;
+      const clock = $("#xp-clock");
+      const t = clock.textContent;
+      clock.textContent = "4:18";
+      setTimeout(() => { clock.textContent = t; }, 1400);
+    }, 180000);
+  }
 
   /* ============================================================
      СТАРТ

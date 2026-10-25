@@ -8,153 +8,51 @@
 <link rel="apple-touch-icon" href="assets/logo.svg">
 <link rel="stylesheet" href="styles.css">
 </head>
-<body class="theme-aqua">
+<body>
 
-<!-- ===== «рабочий стол» (frutiger aero — базовый слой всегда) ===== -->
-<div id="desktop" aria-hidden="true">
-  <div id="sun"></div>
-  <div class="cloud c1"></div>
-  <div class="cloud c2"></div>
-  <div class="cloud c3"></div>
-  <div class="cloud c4"></div>
-  <div class="cloud c5"></div>
-  <div class="cloud c6"></div>
-  <div id="bubbles"></div>
-  <div id="hill">
-    <svg viewBox="0 0 1440 320" preserveAspectRatio="none">
-      <path d="M0,160 C240,80 480,220 720,150 C960,80 1200,200 1440,120 L1440,320 L0,320 Z" fill="#7ec850" opacity=".55"/>
-      <path d="M0,220 C200,150 420,260 700,200 C980,140 1220,250 1440,180 L1440,320 L0,320 Z" fill="#5cb238" opacity=".7"/>
-      <path d="M0,280 C260,220 520,300 820,250 C1080,210 1280,290 1440,240 L1440,320 L0,320 Z" fill="#3f9427"/>
-    </svg>
-    <div id="grass"></div>
+<!-- верхняя полоса магазина: как у любого сайта, но чуть «не так» -->
+<header id="topbar">
+  <a class="brand" href="#/">
+    <img src="assets/logo.svg" alt="" width="22" height="32">
+    <span class="brand-name">SPM PHARMACY</span>
+  </a>
+  <nav id="nav">
+    <a href="#/">Каталог</a>
+    <a href="#/about">О магазине</a>
+    <a href="#/" id="nav-delivery">Доставка</a>
+  </nav>
+  <div id="topbar-right">
+    <span id="clock">4:17</span>
+    <button id="cart-btn" class="ghost-btn">Корзина (<span id="cart-count">0</span>)</button>
   </div>
-  <div id="mist"></div>
-</div>
+</header>
 
-<!-- иконки на рабочем столе (двойной клик = открыть «программу») -->
-<div id="desktop-icons" aria-hidden="true">
-  <button class="dicon" data-open="aqua">
-    <span class="dicon-art">🫧</span>
-    <span>Витрина<br>«Роса»</span>
-  </button>
-  <button class="dicon" data-open="y2k">
-    <span class="dicon-art">💿</span>
-    <span>Архив<br>2000.exe</span>
-  </button>
-  <button class="dicon" data-open="vapor">
-    <span class="dicon-art">🌴</span>
-    <span>Ночной<br>сеанс</span>
-  </button>
-</div>
+<main id="app"><!-- контент страницы --></main>
 
-<!-- ===== окно приложения в стиле Windows XP ===== -->
-<div id="xp-window">
-  <div id="xp-titlebar">
-    <div class="xp-title-left">
-      <img src="assets/logo.svg" alt="" width="16" height="23">
-      <span id="xp-title">SPM Pharmacy — витрина</span>
-    </div>
-    <div class="xp-title-btns">
-      <button class="xp-btn" id="xp-min" title="Свернуть">🗕</button>
-      <button class="xp-btn" id="xp-max" title="Развернуть">🗖</button>
-      <button class="xp-btn xp-close" id="xp-close" title="Закрыть">🗙</button>
-    </div>
-  </div>
+<footer id="foot">
+  <p>«SPM Pharmacy» — интернет-аптека · работаем с 2007 года<br>
+  доставка по городу ночью · оплата при получении · чек прилагается</p>
+  <p class="foot-small">все товары сертифицированы · <span id="year"></span></p>
+</footer>
 
-  <!-- панель вкладок = «программы» -->
-  <div id="xp-tabs" role="tablist">
-    <button class="xp-tab active" data-theme="aqua" role="tab" aria-selected="true">
-      <span class="tab-ico">🫧</span> Витрина · aqua
-    </button>
-    <button class="xp-tab" data-theme="y2k" role="tab" aria-selected="false">
-      <span class="tab-ico">💿</span> Архив 2000 · y2k
-    </button>
-    <button class="xp-tab" data-theme="vapor" role="tab" aria-selected="false">
-      <span class="tab-ico">🌴</span> Ночной сеанс · vapor
-    </button>
-  </div>
-
-  <!-- строка меню в стиле 95/XP -->
-  <div id="xp-menubar">
-    <button data-menu="file">Файл</button>
-    <button data-menu="view">Вид</button>
-    <button data-menu="help">Справка</button>
-    <span id="xp-menu-pop" class="win95-pop" hidden></span>
-  </div>
-
-  <!-- адресная строка, как в Проводнике -->
-  <div id="xp-addressbar">
-    <span class="addr-label">Адрес:</span>
-    <span id="xp-address">spm-pharmacy.local/витрина</span>
-  </div>
-
-  <main id="app"><!-- контент текущей темы --></main>
-
-  <footer id="plate">
-    <img class="plate-logo" src="assets/logo.svg" alt="" width="34" height="49">
-    <p>«SPM Pharmacy» — интернет-аптека · работаем с 2007 года<br>
-    доставка по городу ночью · оплата при получении · чек прилагается</p>
-    <p class="plate-small">все товары сертифицированы · стекло, вода, время · <span id="year"></span></p>
-  </footer>
-
-  <!-- статусная строка окна -->
-  <div id="xp-statusbar">
-    <span id="xp-status">Готово. Роса свежая.</span>
-    <span id="xp-status-right">12 товаров · росинка</span>
-  </div>
-</div>
-
-<!-- ===== панель задач в стиле Windows XP ===== -->
-<div id="xp-taskbar">
-  <button id="xp-start">
-    <span class="start-flag"></span> пуск
-  </button>
-  <div id="xp-tasks">
-    <button class="xp-task-btn active" id="task-main">
-      <img src="assets/logo.svg" alt="" width="16" height="23"> SPM Pharmacy
-    </button>
-    <button class="xp-task-btn" id="task-cart">
-      🫧 Корзина (<span id="cart-count">0</span>)
-    </button>
-  </div>
-  <div id="xp-tray">
-    <button id="sound-btn" class="tray-btn" title="Звук тумана">🔇</button>
-    <span id="xp-clock">4:17</span>
-  </div>
-</div>
-
-<!-- меню «пуск» -->
-<div id="xp-startmenu" class="win95-pop" hidden>
-  <div class="startmenu-side">SPM<br>PHARMACY</div>
-  <div class="startmenu-items">
-    <button data-open="aqua">🫧 Витрина «Роса» (aqua)</button>
-    <button data-open="y2k">💿 Архив 2000 (y2k)</button>
-    <button data-open="vapor">🌴 Ночной сеанс (vapor)</button>
-    <hr>
-    <button data-open="about">📜 О магазине</button>
-    <hr>
-    <button id="start-shutdown">🌙 Выключить дождь</button>
-  </div>
-</div>
-
-<!-- ===== выдвижная корзина ===== -->
+<!-- выдвижная корзина -->
 <aside id="cart-drawer" aria-hidden="true">
   <div class="drawer-head">
     <h2>Ваша корзина</h2>
-    <button id="cart-close" class="aqua-btn ghost">✕</button>
+    <button id="cart-close" class="ghost-btn">✕</button>
   </div>
   <div id="cart-items"></div>
   <div class="drawer-foot">
     <div class="cart-total">итого: <b id="cart-total">0</b> росинок</div>
-    <button id="checkout" class="aqua-btn big">оформить заказ</button>
+    <button id="checkout" class="buy-btn big">оформить заказ</button>
     <p class="cart-note">оплата при получении · чек прилагается · сдачи не будет</p>
   </div>
 </aside>
 <div id="scrim"></div>
 
-<!-- ===== модальное окно товара ===== -->
+<!-- карточка товара -->
 <div id="modal" aria-hidden="true">
-  <button id="modal-close" class="aqua-btn ghost">✕</button>
+  <button id="modal-close" class="ghost-btn">✕</button>
   <div id="modal-body"></div>
 </div>
 
@@ -163,7 +61,6 @@
 <script src="data.js"></script>
 <script src="art.js"></script>
 <script src="ambient.js"></script>
-<script src="themes.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
